@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # DTR System — Daily Time Record
 
 A personal attendance tracker with 4-punch clock-in/out, DTR report generation, and login protection.
@@ -135,3 +136,7 @@ Working days: 11   TOTAL: 12 Days
 | Add new columns to table | `js/records.js` → `renderTable()` |
 | Connect to database | `js/storage.js` |
 | Change login method | `config/auth.js` |
+=======
+# dtr-app
+Simple Attendance System
+>>>>>>> b712dd5c299167b96897c2e12e1aa410f99aa266
