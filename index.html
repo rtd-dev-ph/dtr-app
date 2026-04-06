@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Time Record</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <!-- ══════════════════════════════════════
+       LOGIN SCREEN
+  ══════════════════════════════════════ -->
+    <div id="login-screen" class="screen">
+      <div class="login-bg-grid"></div>
+      <div class="login-card">
+        <div class="login-logo">
+          <span class="logo-dtr">DTR</span>
+          <span class="logo-system">System</span>
+        </div>
+        <p class="login-sub">Daily Time Record · Secure Access</p>
+
+        <div class="form-group">
+          <label for="login-username">Username</label>
+          <input
+            type="text"
+            id="login-username"
+            placeholder="Enter username"
+            autocomplete="username"
+          />
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <div class="pw-wrap">
+            <input
+              type="password"
+              id="login-password"
+              placeholder="Enter password"
+              autocomplete="current-password"
+            />
+            <button
+              class="pw-toggle"
+              onclick="togglePw()"
+              tabindex="-1"
+              aria-label="Toggle password"
+            >
+              <svg
+                id="eye-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="login-error" class="login-error" style="display: none"></div>
+
+        <button class="btn-login" id="btn-login" onclick="handleLogin()">
+          <span id="login-label">Sign In</span>
+        </button>
+
+        <p class="login-hint">
+          Default: <code>admin</code> / <code>dtr2024</code> — change in
+          <code>config/auth.js</code>
+        </p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+       MAIN APP SCREEN
+  ══════════════════════════════════════ -->
+    <div id="app-screen" class="screen" style="display: none">
+      <!-- HEADER -->
+      <header>
+        <div class="logo">Authentic <span>System Solutions</span></div>
+        <div class="header-center">
+          <div id="live-clock">00:00:00</div>
+          <div id="live-date">–</div>
+        </div>
+        <button class="btn-logout" onclick="handleLogout()">⎋ Logout</button>
+      </header>
+
+      <main>
+        <!-- ── CLOCK CARD ── -->
+        <div class="clock-card">
+          <div class="card-accent-bar"></div>
+
+          <!-- Progress Stepper -->
+          <div class="stepper">
+            <div class="step" id="step-0">
+              <div class="step-dot">1</div>
+              <div class="step-label">AM In</div>
+              <div class="step-time" id="st-0">–</div>
+            </div>
+            <div class="step" id="step-1">
+              <div class="step-dot">2</div>
+              <div class="step-label">Lunch Out</div>
+              <div class="step-time" id="st-1">–</div>
+            </div>
+            <div class="step" id="step-2">
+              <div class="step-dot">3</div>
+              <div class="step-label">Lunch In</div>
+              <div class="step-time" id="st-2">–</div>
+            </div>
+            <div class="step" id="step-3">
+              <div class="step-dot">4</div>
+              <div class="step-label">PM Out</div>
+              <div class="step-time" id="st-3">–</div>
+            </div>
+          </div>
+
+          <!-- Shift Settings -->
+          <div class="settings-row">
+            <label
+              >Shift Start <input type="time" id="shift-start" value="08:00"
+            /></label>
+            <label
+              >Lunch Out <input type="time" id="lunch-out-sched" value="12:00"
+            /></label>
+            <label
+              >Lunch In <input type="time" id="lunch-in-sched" value="13:00"
+            /></label>
+            <label
+              >Shift End <input type="time" id="shift-end" value="17:00"
+            /></label>
+          </div>
+
+          <!-- Punch Buttons -->
+          <div class="punch-section">
+            <button class="punch-btn p1" id="btn-am-in" onclick="punch('amIn')">
+              ⏱ Clock In <span class="sub">Morning</span>
+            </button>
+            <button
+              class="punch-btn p2"
+              id="btn-lunch-out"
+              onclick="punch('lunchOut')"
+              disabled
+            >
+              🍱 Lunch Out <span class="sub">Break Start</span>
+            </button>
+            <button
+              class="punch-btn p3"
+              id="btn-lunch-in"
+              onclick="punch('lunchIn')"
+              disabled
+            >
+              ☕ Lunch In <span class="sub">Break End</span>
+            </button>
+            <button
+              class="punch-btn p4"
+              id="btn-pm-out"
+              onclick="punch('pmOut')"
+              disabled
+            >
+              ⏹ Clock Out <span class="sub">End of Day</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── RECORDS TABLE ── -->
+        <div class="records-card">
+          <div class="section-title">
+            <h2>Attendance Records</h2>
+            <div class="title-actions">
+              <input type="month" id="filter-month" oninput="renderTable()" />
+              <button class="btn-danger" onclick="clearAllConfirm()">
+                Clear All
+              </button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th class="col-amin">AM In</th>
+                  <th class="col-lout">Lunch Out</th>
+                  <th class="col-lin">Lunch In</th>
+                  <th class="col-pmout">PM Out</th>
+                  <th>Work Hrs</th>
+                  <th>Late</th>
+                  <th>OT</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="records-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── DTR REPORT ── -->
+        <div class="dtr-card">
+          <div class="section-title">
+            <h2>Generate DTR Report</h2>
+            <button class="copy-btn" onclick="copyDTR()">⎘ Copy Report</button>
+          </div>
+          <div class="report-controls">
+            <label>Period Start <input type="date" id="report-start" /></label>
+            <label>Period End <input type="date" id="report-end" /></label>
+            <label
+              >Employee Name
+              <input type="text" id="emp-name" placeholder="Your Name"
+            /></label>
+            <button class="btn-generate" onclick="generateDTR()">
+              Generate
+            </button>
+          </div>
+          <div class="dtr-output" id="dtr-output">
+            ← Set a period and click Generate
+          </div>
+          <div class="dtr-summary" id="dtr-summary"></div>
+        </div>
+      </main>
+    </div>
+    <!-- /app-screen -->
+
+    <!-- ══════════════════════════════════════
+       EDIT MODAL
+  ══════════════════════════════════════ -->
+    <div class="modal-overlay" id="modal">
+      <div class="modal">
+        <h3>✏ Edit Record</h3>
+        <input type="hidden" id="edit-key-orig" />
+        <div class="form-group">
+          <label>Date</label><input type="date" id="edit-date-val" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>AM In</label> <input type="time" id="edit-am-in" />
+          </div>
+          <div class="form-group">
+            <label>Lunch Out</label><input type="time" id="edit-lunch-out" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Lunch In</label> <input type="time" id="edit-lunch-in" />
+          </div>
+          <div class="form-group">
+            <label>PM Out</label> <input type="time" id="edit-pm-out" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Mark As</label>
+          <select id="edit-flag">
+            <option value="">Normal</option>
+            <option value="ABSENT">Absent</option>
+            <option value="HD">Half Day</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button class="btn-save" onclick="saveEdit()">Save</button>
+          <button
+            class="btn-danger"
+            onclick="deleteRecord()"
+            style="padding: 10px 12px"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast"></div>
+
+    <!-- ══════════════════════════════════════
+       SCRIPTS — load order matters
+  ══════════════════════════════════════ -->
+    <script type="module" src="config/supabase.js"></script>
+    <!-- <script src="config/auth.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/clock.js"></script>
+    <script src="js/punch.js"></script>
+    <script src="js/records.js"></script>
+    <script src="js/dtr-report.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script> -->
+  </body>
+</html>
