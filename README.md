@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # DTR System — Daily Time Record
 
 A personal attendance tracker with 4-punch clock-in/out, DTR report generation, and login protection.
@@ -60,6 +59,7 @@ Default credentials: `admin` / `dtr2024`
 When you're ready to move data off localStorage:
 
 ### Step 1 — Create Supabase project
+
 1. Go to [supabase.com](https://supabase.com) and create a free account
 2. Create a new project
 3. In the SQL editor, run:
@@ -79,11 +79,11 @@ CREATE TABLE dtr_records (
 ### Step 2 — Create `config/supabase.js`
 
 ```js
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const SUPABASE_URL  = 'https://your-project.supabase.co'
-const SUPABASE_KEY  = 'your-anon-key'
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+const SUPABASE_URL = "https://your-project.supabase.co";
+const SUPABASE_KEY = "your-anon-key";
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 ```
 
 ### Step 3 — Replace `js/storage.js` functions
@@ -99,13 +99,13 @@ The `validateCredentials()` function has a comment showing the Supabase auth rep
 
 ## ⚙️ Settings (auto-saved)
 
-| Setting | Default | Where |
-|---|---|---|
-| Shift Start | 08:00 AM | Clock card |
-| Lunch Out schedule | 12:00 PM | Clock card |
-| Lunch In schedule | 1:00 PM | Clock card |
-| Shift End | 5:00 PM | Clock card |
-| Employee Name | (blank) | DTR Report section |
+| Setting            | Default  | Where              |
+| ------------------ | -------- | ------------------ |
+| Shift Start        | 08:00 AM | Clock card         |
+| Lunch Out schedule | 12:00 PM | Clock card         |
+| Lunch In schedule  | 1:00 PM  | Clock card         |
+| Shift End          | 5:00 PM  | Clock card         |
+| Employee Name      | (blank)  | DTR Report section |
 
 ---
 
@@ -127,16 +127,18 @@ Working days: 11   TOTAL: 12 Days
 
 ## 🛠️ Adding Features
 
-| Feature | File to edit |
-|---|---|
-| Change colors/fonts | `css/styles.css` |
-| Add a new punch type | `js/punch.js` + `index.html` |
-| Change report format | `js/dtr-report.js` |
-| Add overtime rules | `js/punch.js` → `calcOT()` |
+| Feature                  | File to edit                      |
+| ------------------------ | --------------------------------- |
+| Change colors/fonts      | `css/styles.css`                  |
+| Add a new punch type     | `js/punch.js` + `index.html`      |
+| Change report format     | `js/dtr-report.js`                |
+| Add overtime rules       | `js/punch.js` → `calcOT()`        |
 | Add new columns to table | `js/records.js` → `renderTable()` |
-| Connect to database | `js/storage.js` |
-| Change login method | `config/auth.js` |
+| Connect to database      | `js/storage.js`                   |
+| Change login method      | `config/auth.js`                  |
+
 =======
+
 # dtr-app
+
 Simple Attendance System
->>>>>>> b712dd5c299167b96897c2e12e1aa410f99aa266
