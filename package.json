@@ -9,7 +9,8 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^8.0.4"
+    "vite": "^8.0.4",
+    "vite-plugin-static-copy": "^4.0.1"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.0"
