@@ -1,94 +1,158 @@
-/* ════════════════════════════════════════════
-   js/storage.js
-   ──────────────────────────────────────────
-   DATA LAYER — All read/write operations live here.
-
-   CURRENT:  Uses browser localStorage (works offline,
-             data stays in this browser only).
-
-   FUTURE SUPABASE UPGRADE:
-     1. npm install @supabase/supabase-js
-     2. Add your keys to config/supabase.js
-     3. Replace each function body below with
-        the Supabase version shown in comments.
-        Everything else in the app stays the same.
-   ════════════════════════════════════════════ */
-
 const STORAGE_KEY = "dtr_records_v3";
 
-/**
- * Load all records.
- * Returns an object keyed by date string "YYYY-MM-DD".
- * Each value: { amIn, lunchOut, lunchIn, pmOut, flag }
- *
- * FUTURE SUPABASE:
- *   const { data } = await supabase.from('dtr_records').select('*');
- *   return Object.fromEntries(data.map(r => [r.date, r]));
- */
 async function storageGetAll() {
   try {
-    // return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    // Wait for auth session to be restored
+    const {
+      data: { session },
+    } = await window.supabase.auth.getSession();
 
-    const { data } = await supabase.from("dtr_records").select("*");
-    return Object.fromEntries(data.map((r) => [r.date, r]));
-  } catch {
+    console.log("Session:", session);
+
+    if (!session) {
+      console.log("No session found");
+      return {};
+    }
+
+    const { data, error } = await window.supabase
+      .from("dtr_records")
+      .select("*")
+      .eq("user_id", session.user.id);
+
+    console.log("Records:", data);
+    console.log("Error:", error);
+
+    if (error) throw error;
+    return Object.fromEntries(
+      data.map((r) => [
+        r.date,
+        {
+          amIn: r.amIn,
+          lunchOut: r.lunchOut,
+          lunchIn: r.lunchIn,
+          pmOut: r.pmOut,
+          flag: r.flag,
+        },
+      ]),
+    );
+  } catch (e) {
+    console.log("CATCH ERROR:", e);
     return {};
   }
 }
+// async function storageGetAll() {
+//   try {
+//     async function storageGetAll() {
+//       try {
+//         const {
+//           data: { user },
+//         } = await window.supabase.auth.getUser();
 
-/**
- * Save (upsert) a single day's record.
- * @param {string} dateKey  - "YYYY-MM-DD"
- * @param {object} data     - { amIn, lunchOut, lunchIn, pmOut, flag }
- *
- * FUTURE SUPABASE:
- *   await supabase.from('dtr_records').upsert({ date: dateKey, ...data });
- */
+//         // ── TEMPORARY DEBUG ──
+//         console.log("Current user:", user);
+//         // ────────────────────
+
+//         const { data, error } = await window.supabase
+//           .from("dtr_records")
+//           .select("*")
+//           .eq("user_id", user.id);
+
+//         // ── TEMPORARY DEBUG ──
+//         console.log("Records from Supabase:", data);
+//         console.log("Error:", error);
+//         // ────────────────────
+
+//         if (error) throw error;
+//         return Object.fromEntries(
+//           data.map((r) => [
+//             r.date,
+//             {
+//               amIn: r.amIn,
+//               lunchOut: r.lunchOut,
+//               lunchIn: r.lunchIn,
+//               pmOut: r.pmOut,
+//               flag: r.flag,
+//             },
+//           ]),
+//         );
+//       } catch {
+//         return {};
+//       }
+//     }
+
+//     const {
+//       data: { user },
+//     } = await window.supabase.auth.getUser();
+//     const { data, error } = await window.supabase
+//       .from("dtr_records")
+//       .select("*")
+//       .eq("user_id", user.id);
+
+//     if (error) throw error;
+//     return Object.fromEntries(
+//       data.map((r) => [
+//         r.date,
+//         {
+//           amIn: r.amIn,
+//           lunchOut: r.lunchOut,
+//           lunchIn: r.lunchIn,
+//           pmOut: r.pmOut,
+//           flag: r.flag,
+//         },
+//       ]),
+//     );
+//   } catch {
+//     return {};
+//   }
+// }
+
 async function storageSave(dateKey, data) {
-  const all = await storageGetAll();
-  all[dateKey] = data;
-  await supabase.from("dtr_records").upsert({ date: dateKey, ...data });
-  // localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  const {
+    data: { user },
+  } = await window.supabase.auth.getUser();
+  const { error } = await window.supabase.from("dtr_records").upsert({
+    date: dateKey,
+    user_id: user.id,
+    amIn: data.amIn || null,
+    lunchOut: data.lunchOut || null,
+    lunchIn: data.lunchIn || null,
+    pmOut: data.pmOut || null,
+    flag: data.flag || null,
+  });
+  if (error) console.error("Save error:", error);
 }
 
-/**
- * Delete a single day's record.
- * @param {string} dateKey - "YYYY-MM-DD"
- *
- * FUTURE SUPABASE:
- *   await supabase.from('dtr_records').delete().eq('date', dateKey);
- */
 async function storageDelete(dateKey) {
-  const all = await storageGetAll();
-  delete all[dateKey];
-  // localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-  await supabase.from("dtr_records").delete().eq("date", dateKey);
+  const {
+    data: { user },
+  } = await window.supabase.auth.getUser();
+  const { error } = await window.supabase
+    .from("dtr_records")
+    .delete()
+    .eq("date", dateKey)
+    .eq("user_id", user.id);
+  if (error) console.error("Delete error:", error);
 }
 
-/**
- * Save all records at once (used for bulk operations).
- * @param {object} allRecords
- *
- * FUTURE SUPABASE:
- *   const rows = Object.entries(allRecords).map(([date, data]) => ({ date, ...data }));
- *   await supabase.from('dtr_records').upsert(rows);
- */
 async function storageSaveAll(allRecords) {
-  // localStorage.setItem(STORAGE_KEY, JSON.stringify(allRecords));
+  const {
+    data: { user },
+  } = await window.supabase.auth.getUser();
   const rows = Object.entries(allRecords).map(([date, data]) => ({
     date,
-    ...data,
+    user_id: user.id,
+    amIn: data.amIn || null,
+    lunchOut: data.lunchOut || null,
+    lunchIn: data.lunchIn || null,
+    pmOut: data.pmOut || null,
+    flag: data.flag || null,
   }));
-  await supabase.from("dtr_records").upsert(rows);
+  await window.supabase.from("dtr_records").upsert(rows);
 }
 
-/**
- * Clear all records.
- *
- * FUTURE SUPABASE:
- *   await supabase.from('dtr_records').delete().neq('date', '');
- */
 async function storageClearAll() {
-  // localStorage.removeItem(STORAGE_KEY);
-  await supabase.from("dtr_records").delete().neq("date", "");
+  const {
+    data: { user },
+  } = await window.supabase.auth.getUser();
+  await window.supabase.from("dtr_records").delete().eq("user_id", user.id);
 }
