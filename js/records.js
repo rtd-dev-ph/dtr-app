@@ -14,7 +14,7 @@ async function renderTable() {
 
   const all = await storageGetAll();
 
-  console.log("RAW DATA FROM SUPABASE:", JSON.stringify(all, null, 2));
+  // console.log("RAW DATA FROM SUPABASE:", JSON.stringify(all, null, 2));
 
   let keys = Object.keys(all).sort();
   if (filterMonth) keys = keys.filter((k) => k.startsWith(filterMonth));

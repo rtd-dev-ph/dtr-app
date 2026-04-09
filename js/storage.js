@@ -7,8 +7,6 @@ async function storageGetAll() {
       data: { session },
     } = await window.supabase.auth.getSession();
 
-    console.log("Session:", session);
-
     if (!session) {
       console.log("No session found");
       return {};
@@ -18,9 +16,6 @@ async function storageGetAll() {
       .from("dtr_records")
       .select("*")
       .eq("user_id", session.user.id);
-
-    console.log("Records:", data);
-    console.log("Error:", error);
 
     if (error) throw error;
     return Object.fromEntries(
